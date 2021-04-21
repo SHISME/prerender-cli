@@ -9,12 +9,7 @@ async function startBuildPreRenderPages(prenRenderConfig: IPreRenderConfig): Pro
   await startServer(prenRenderConfig.server);
 }
 
-function injectSkeleton(): string {
-  return '';
-}
-
 export {
   startBuildPreRenderPages,
   preRenderPage,
-  injectSkeleton,
 };
