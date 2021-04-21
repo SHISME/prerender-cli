@@ -16,6 +16,7 @@
     ],
     "rules": {
         "import/extensions": "off",
-        "import/no-unresolved": "off"
+        "import/no-unresolved": "off",
+        "global-require": "off"
     }
 }
