@@ -1,12 +1,12 @@
-import { ISkeletonConfig } from './types';
+import { IPreRenderConfig } from './types';
 import startServer from './server';
 
 function preRenderPage(): string {
   return '';
 }
 
-async function startBuildSkeleton(skeletonConfig: ISkeletonConfig): Promise<void> {
-  await startServer(skeletonConfig.server);
+async function startBuildPreRenderPages(prenRenderConfig: IPreRenderConfig): Promise<void> {
+  await startServer(prenRenderConfig.server);
 }
 
 function injectSkeleton(): string {
@@ -14,7 +14,7 @@ function injectSkeleton(): string {
 }
 
 export {
-  startBuildSkeleton,
+  startBuildPreRenderPages,
   preRenderPage,
   injectSkeleton,
 };

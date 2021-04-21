@@ -11,7 +11,7 @@ interface IRoute {
   captureAfterTime?: number;
 }
 
-export interface ISkeletonConfig {
+export interface IPreRenderConfig {
   routes: IRoute[];
   server: IServerConfig;
 }
