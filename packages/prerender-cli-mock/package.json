@@ -1,0 +1,17 @@
+{
+  "name": "prerender-cli-mock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prerender-cli": "^1.0.0"
+  },
+  "dependencies": {
+    "express-mock-api-middleware": "^1.0.10"
+  }
+}

@@ -1,7 +1,8 @@
+import hooks from './hooks';
+
 export interface IServerConfig {
   port: number;
   staticDir: string;
-  mockApiDir?: string;
 }
 
 interface IRoute {
@@ -14,4 +15,18 @@ interface IRoute {
 export interface IPreRenderConfig {
   routes: IRoute[];
   server: IServerConfig;
+}
+
+export enum PreRenderCliHook {
+  beforeStartStaticServer = 'beforeStartStaticServer',
+}
+
+export interface ICompiler {
+  hooks: typeof hooks;
+}
+
+export abstract class PreRenderCliPlugin<T> {
+  protected config:T;
+
+  public abstract apply(compiler: ICompiler):void;
 }

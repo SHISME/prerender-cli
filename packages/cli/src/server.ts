@@ -1,17 +1,12 @@
 import express from 'express';
-import { IServerConfig } from './types';
+import { IServerConfig, PreRenderCliHook } from './types';
+import hooks from './hooks';
 
 export default function startServer(config: IServerConfig): Promise<void> {
   return new Promise((resolve) => {
     const app = express();
     app.use(express.static(config.staticDir));
-    if (config.mockApiDir) {
-      const mockApiMiddleware = require('express-mock-api-middleware')(
-        config.mockApiDir,
-      );
-      app.use(mockApiMiddleware);
-    }
-
+    hooks[PreRenderCliHook.beforeStartStaticServer].call(app);
     app.listen(config.port, () => {
       resolve();
     });
