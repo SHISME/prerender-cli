@@ -12,16 +12,10 @@ import {
 const semaphore = new Semaphore(3);
 const preRenderConfig = getPreRenderConfig();
 
-async function preRenderPage({
-  browser,
-  route,
-}: {
-  browser: Browser;
-  route: IRoute;
-}): Promise<string> {
-  const page = await browser.newPage();
-  const url = `http://localhost:${preRenderConfig.server.port}/${route.path}`;
-  await page.goto(url);
+async function captureAfter(
+  page: Page,
+  route: IRoute,
+): Promise<void> {
   if (route.captureAfterElementExists) {
     if (
       typeof route.captureAfterElementExists === 'string'
@@ -38,9 +32,39 @@ async function preRenderPage({
     }
   }
 
+  if (route.captureAfterDocumentEvent) {
+    await page.evaluate(captureAfterDocumentEvent => {
+      return new Promise(resolve => {
+        // @ts-ignore
+        document.addEventListener(
+          captureAfterDocumentEvent,
+          () => {
+            resolve(undefined);
+          },
+        );
+      });
+    }, route.captureAfterDocumentEvent);
+  }
+
   if (route.captureAfterTime) {
     await delay(route.captureAfterTime);
   }
+}
+
+async function preRenderPage({
+  browser,
+  route,
+}: {
+  browser: Browser;
+  route: IRoute;
+}): Promise<string> {
+  const page = await browser.newPage();
+  const url = `http://localhost:${preRenderConfig.server.port}/${route.path}`;
+  await page.setRequestInterception(true);
+  page.on('request', () => {});
+  await page.goto(url);
+  await captureAfter(page, route);
+
   return '';
 }
 
