@@ -1,4 +1,10 @@
-import { PreRenderCliPlugin, ICompiler, PreRenderCliHook } from 'prerender-cli';
+/** @format */
+
+import {
+  PreRenderCliPlugin,
+  ICompiler,
+  PreRenderCliHook,
+} from 'prerender-cli';
 import mockApiMiddleware from 'express-mock-api-middleware';
 
 interface IConfig {
@@ -13,8 +19,16 @@ export default class PreRenderCliMockPlugin extends PreRenderCliPlugin<IConfig> 
   }
 
   apply(compiler: ICompiler): void {
-    compiler.hooks[PreRenderCliHook.beforeStartStaticServer].tap('PreRenderCliMockPlugin', (app) => {
-      app.use('/', mockApiMiddleware(this.config.path, this.config.options));
+    compiler.hooks[
+      PreRenderCliHook.beforeStartStaticServer
+    ].tap('PreRenderCliMockPlugin', app => {
+      app.use(
+        '/',
+        mockApiMiddleware(
+          this.config.path,
+          this.config.options,
+        ),
+      );
     });
   }
 }

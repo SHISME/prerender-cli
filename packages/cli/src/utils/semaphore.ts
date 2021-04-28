@@ -1,7 +1,9 @@
+/** @format */
+
 export default class Semaphore {
   private readonly capacity: number;
 
-  private resolveList: Function[] = []
+  private resolveList: Function[] = [];
 
   private curCount: number = 0;
 
@@ -10,7 +12,7 @@ export default class Semaphore {
   }
 
   public acquire(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (this.curCount >= this.capacity) {
         this.resolveList.push(resolve);
       } else {

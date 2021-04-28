@@ -1,5 +1,10 @@
+/** @format */
+
 import {
-  IServerConfig, ICompiler, PreRenderCliPlugin, PreRenderCliHook,
+  IServerConfig,
+  ICompiler,
+  PreRenderCliPlugin,
+  PreRenderCliHook,
 } from './types';
 
 export {
