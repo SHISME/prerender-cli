@@ -1,16 +1,22 @@
 /** @format */
 
 import puppeteer, { Browser, Page } from 'puppeteer';
-import { IPreRenderConfig, IRoute } from './types';
+import {
+  IPreRenderConfig,
+  IRoute,
+  PreRenderCliHook,
+} from './types';
 import {
   Semaphore,
   colors,
   getPreRenderConfig,
   delay,
 } from './utils';
+import hooks from './hooks';
 
 const semaphore = new Semaphore(3);
 const preRenderConfig = getPreRenderConfig();
+const staticServerHost = `http://localhost:${preRenderConfig.server.port}`;
 
 async function captureAfter(
   page: Page,
@@ -51,6 +57,16 @@ async function captureAfter(
   }
 }
 
+async function injectProperty(page: Page): Promise<void> {
+  if (preRenderConfig.injectConfig) {
+    await page.evaluateOnNewDocument(injectConfig => {
+      const { propertyName, value } = injectConfig;
+      // @ts-ignore
+      window[propertyName] = value;
+    }, preRenderConfig.injectConfig);
+  }
+}
+
 async function preRenderPage({
   browser,
   route,
@@ -59,17 +75,38 @@ async function preRenderPage({
   route: IRoute;
 }): Promise<string> {
   const page = await browser.newPage();
-  const url = `http://localhost:${preRenderConfig.server.port}/${route.path}`;
+  const url = `${staticServerHost}/${route.path}`;
   await page.setRequestInterception(true);
-  page.on('request', () => {});
+  page.on('request', req => {
+    const url = req.url();
+    if (!preRenderConfig.cdnMappings) {
+      req.continue();
+      return;
+    }
+    const cdnMap = preRenderConfig.cdnMappings.find(
+      ({ regExp }) => regExp.test(url),
+    );
+    if (cdnMap) {
+      req.continue();
+      return;
+    }
+    const newUrl = url.replace(
+      cdnMap.regExp,
+      `${staticServerHost}/${cdnMap.targetPath}`,
+    );
+    req.continue({ url: newUrl });
+  });
+  await injectProperty(page);
   await page.goto(url);
   await captureAfter(page, route);
-
+  await hooks[PreRenderCliHook.afterCapture].promise(page);
   return '';
 }
 
 async function startBuildPreRenderPages(): Promise<void> {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: false,
+  });
   await Promise.all(
     preRenderConfig.routes.map(async route => {
       await semaphore.acquire();

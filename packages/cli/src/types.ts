@@ -32,9 +32,14 @@ export interface IPreRenderConfig {
     targetPath: string;
   }[];
   server: IServerConfig;
+  injectConfig?: {
+    propertyName: string;
+    value:any;
+  };
   plugins?: PreRenderCliPlugin<any>[];
 }
 
 export enum PreRenderCliHook {
   beforeStartStaticServer = 'beforeStartStaticServer',
+  afterCapture = 'afterCapture',
 }
