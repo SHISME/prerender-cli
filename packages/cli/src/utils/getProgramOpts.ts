@@ -7,13 +7,17 @@ interface IOptions {
 }
 
 const program = new Command();
-program.option('-c, --config', 'PreRender config');
+program.option('-c, --config <configName>', 'PreRender config');
 program.parse(process.argv);
 const options = program.opts();
 
-export default function getOptions(): IOptions {
+const defaultOptions = {
+  config: 'prerender.config.js',
+};
+
+export default function getProgramOpts(): IOptions {
   return {
-    config: options.config || 'prerender.config.js',
+    ...defaultOptions,
     ...options,
   };
 }

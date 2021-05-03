@@ -1,22 +1,21 @@
 /** @format */
 
 import puppeteer, { Browser, Page } from 'puppeteer';
-import {
-  IPreRenderConfig,
-  IRoute,
-  PreRenderCliHook,
-} from './types';
+import path from 'path';
+import { IRoute, PreRenderCliHook } from './types';
 import {
   Semaphore,
   colors,
   getPreRenderConfig,
   delay,
+  savePreRenderHTML,
 } from './utils';
 import hooks from './hooks';
 
 const semaphore = new Semaphore(3);
 const preRenderConfig = getPreRenderConfig();
-const staticServerHost = `http://localhost:${preRenderConfig.server.port}`;
+const staticServerHost = `localhost:${preRenderConfig.server.port}`;
+const staticServerOrigin = `http://${staticServerHost}`;
 
 async function captureAfter(
   page: Page,
@@ -75,7 +74,7 @@ async function preRenderPage({
   route: IRoute;
 }): Promise<string> {
   const page = await browser.newPage();
-  const url = `${staticServerHost}/${route.path}`;
+  const url = `${staticServerOrigin}${route.path}`;
   await page.setRequestInterception(true);
   page.on('request', req => {
     const url = req.url();
@@ -86,13 +85,13 @@ async function preRenderPage({
     const cdnMap = preRenderConfig.cdnMappings.find(
       ({ regExp }) => regExp.test(url),
     );
-    if (cdnMap) {
+    if (!cdnMap) {
       req.continue();
       return;
     }
     const newUrl = url.replace(
       cdnMap.regExp,
-      `${staticServerHost}/${cdnMap.targetPath}`,
+      `${staticServerHost}${cdnMap.targetPath}`,
     );
     req.continue({ url: newUrl });
   });
@@ -100,21 +99,32 @@ async function preRenderPage({
   await page.goto(url);
   await captureAfter(page, route);
   await hooks[PreRenderCliHook.afterCapture].promise(page);
-  return '';
+  const content = await page.content();
+  await page.close();
+  return content;
 }
 
 async function startBuildPreRenderPages(): Promise<void> {
-  const browser = await puppeteer.launch({
-    headless: false,
-  });
+  const browser = await puppeteer.launch({});
   await Promise.all(
     preRenderConfig.routes.map(async route => {
       await semaphore.acquire();
       try {
-        await preRenderPage({
+        const preRenderHTML = await preRenderPage({
           browser,
           route,
         });
+        const toSavePath = route.outputPath
+          ? route.outputPath
+          : path.resolve(
+              preRenderConfig.server.staticDir,
+              `./${route.path}`,
+            );
+        console.log(
+          colors.green('[preRenterHtml out path]:') +
+            colors.gray(toSavePath),
+        );
+        await savePreRenderHTML(toSavePath, preRenderHTML);
       } catch (e) {
         console.log(
           colors.error('preRenderPage error:'),
@@ -126,6 +136,7 @@ async function startBuildPreRenderPages(): Promise<void> {
       }
     }),
   );
+  await browser.close();
 }
 
 export { startBuildPreRenderPages, preRenderPage };

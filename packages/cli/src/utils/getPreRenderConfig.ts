@@ -1,9 +1,9 @@
 import path from 'path';
 import { IPreRenderConfig } from '../types';
-import getOptions from './getOptions';
+import getProgramOpts from './getProgramOpts';
 
 export default function getPreRenderConfig(): IPreRenderConfig {
-  const options = getOptions();
+  const options = getProgramOpts();
   const configPath = path.resolve(
     process.cwd(),
     `./${options.config}`,

@@ -9,7 +9,7 @@ export interface IServerConfig {
 
 export interface IRoute {
   path: string;
-  outputPath: string;
+  outputPath?: string;
   captureAfterElementExists?: string | string[];
   captureAfterDocumentEvent?: string;
   captureAfterTime?: number;

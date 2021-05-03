@@ -23,6 +23,9 @@
     "arrow-parens": "off",
     "implicit-arrow-linebreak": "off",
     "function-paren-newline": "off",
-    "arrow-body-style": "off"
+    "arrow-body-style": "off",
+    "indent": "off",
+    "operator-linebreak": "off",
+    "import/no-extraneous-dependencies": "off"
   }
 }

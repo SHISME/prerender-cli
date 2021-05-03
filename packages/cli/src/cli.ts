@@ -1,6 +1,5 @@
 /** @format */
 
-import path from 'path';
 import { getPreRenderConfig, colors } from './utils';
 import { startBuildPreRenderPages } from './prerender';
 import startServer from './server';
@@ -20,6 +19,7 @@ async function run(): Promise<void> {
 run()
   .then(() => {
     console.log(colors.succeed('preRender over'));
+    process.exit(0);
   })
   .catch(e => {
     throw e;
