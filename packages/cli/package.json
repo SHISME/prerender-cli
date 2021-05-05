@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/SHISME/prerender-cli/issues"
   },
-  "author": "",
+  "author": "SHISME",
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",

@@ -3,6 +3,9 @@
 import hooks from './hooks';
 
 export interface IServerConfig {
+  /**
+   * @default 8888
+   */
   port?: number;
   staticDir: string;
 }
@@ -41,5 +44,6 @@ export interface IPreRenderConfig {
 
 export enum PreRenderCliHook {
   beforeStartStaticServer = 'beforeStartStaticServer',
+  beforeLoadPage = 'beforeLoadPage',
   afterCapture = 'afterCapture',
 }

@@ -96,6 +96,9 @@ async function preRenderPage({
     req.continue({ url: newUrl });
   });
   await injectProperty(page);
+  await hooks[PreRenderCliHook.beforeLoadPage].promise(
+    page,
+  );
   await page.goto(url);
   await captureAfter(page, route);
   await hooks[PreRenderCliHook.afterCapture].promise(page);

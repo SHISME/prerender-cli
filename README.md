@@ -1,6 +1,6 @@
 ## Prerender-cli
 
-一个帮助你构建预渲染页面的工具，你也可以利用此工具来为你的页面生成骨架屏。
+一个帮助你构建预渲染页面的工具，你可以利用此工具来为你的页面生成骨架屏。
 
 ## 用法
 
@@ -63,40 +63,59 @@ or
 ```typescript
 
 export interface IServerConfig {
-  port?: number;
-  staticDir: string;
+  port?: number; // 静态服务器端口号，默认为8888
+  staticDir: string; // 编译后文件的根路径
 }
 
 export interface IRoute {
+  // 页面的路径
   path: string;
+
+  // 预渲染html输出的路径，不传则覆盖原来的html
   outputPath?: string;
+  
+  // 等待指定元素出现
+  // document.querySelector
   captureAfterElementExists?: string | string[];
+  
+  // 等待指定事件捕获
+  // 你需要在代码里手动去触发这个事件 document.dispatchEvent(new Event('yourEventName'))
   captureAfterDocumentEvent?: string;
+  
+  // 等待指定时间
   captureAfterTime?: number;
-}
-
-export interface ICompiler {
-  hooks: typeof hooks;
-}
-
-export abstract class PreRenderCliPlugin<T> {
-  protected config: T;
-
-  public abstract apply(compiler: ICompiler): void;
 }
 
 export interface IPreRenderConfig {
   routes: IRoute[];
+
+  // cdn地址的映射
+  // 比方说把 //other.domain.com/js/chunk-vendors.f8844798.js 映射到 /page1/js/chunk-vendors.f8844798.js
+  /**
+  * {
+  *   regExp: /other.domain.com/g,
+  *   targetPath: '/page1',
+  * },
+  **/ 
   cdnMappings?:{
     regExp: RegExp;
     targetPath: string;
   }[];
   server: IServerConfig;
+  
+  // 这个配置会往window上注入
+  /**
+   * 在预渲染时候会往window上注入变量，window.isPreRender = true; 
+   *{
+   *  propertyName: 'isPreRender',
+   *  value: true,
+   *} 
+  **/
   injectConfig?: {
     propertyName: string;
     value:any;
   };
-  plugins?: PreRenderCliPlugin<any>[];
+  plugins?: PreRenderCliPlugin[];
 }
 
 ```
@@ -107,7 +126,7 @@ export interface IPreRenderConfig {
 
 而预渲染，则是通过 puppeteer 控制无头浏览器打开页面，然后将浏览器生成好的 html 注入到入口 html 中，当用户访问入口 html 的时候，看到的就是我们预渲染生成的页面了。
 
-## cli 插件
+## prerender-cli 插件
 
 ### prerender-cli-http-proxy
 
@@ -185,6 +204,42 @@ module.exports = {
 };
 ```
 
+### 自定义插件
 
+```typescript
+export interface ICompiler {
+  hooks: any;
+}
+
+export abstract class PreRenderCliPlugin<T> {
+  protected config: T;
+
+  public abstract apply(compiler: ICompiler): void;
+}
+```
+#### hooks
+
+##### beforeStartStaticServer
+
+启动静态服务前触发
+
+```typescript
+compiler.hooks.beforeStartStaticServer.tap('Plugin Name', (app: Express) => {})
+```
+#### beforeLoadPage
+
+加载页面前执行
+
+```typescript
+compiler.hooks.beforeLoadPage.tapAsync('Plugin Name', async (page: Page) => {});
+```
+
+##### afterCapture
+
+预渲染捕获完成后触发
+
+```typescript
+compiler.hooks.afterCapture.tapAsync('Plugin Name', async (page: Page) => {});
+```
 
 

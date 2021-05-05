@@ -20,6 +20,9 @@ export default class PreRenderCliMockPlugin extends PreRenderCliPlugin<IConfig> 
 
   apply(compiler: ICompiler): void {
     compiler.hooks[
+      PreRenderCliHook.afterCapture
+    ].tapAsync('', async page => {});
+    compiler.hooks[
       PreRenderCliHook.beforeStartStaticServer
     ].tap('PreRenderCliMockPlugin', app => {
       app.use(

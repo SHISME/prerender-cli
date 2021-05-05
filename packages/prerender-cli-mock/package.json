@@ -5,9 +5,10 @@
   "main": "./dist/index.js",
   "types": "./index.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
-  "author": "",
+  "author": "SHISME",
   "license": "ISC",
   "devDependencies": {
     "prerender-cli": "^1.0.0",
@@ -15,5 +16,8 @@
   },
   "dependencies": {
     "express-mock-api-middleware": "^1.0.10"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

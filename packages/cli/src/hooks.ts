@@ -9,9 +9,14 @@ const hooks = {
   [PreRenderCliHook.beforeStartStaticServer]: new SyncHook<Express>(
     ['app'],
   ),
-  [PreRenderCliHook.afterCapture]: new AsyncSeriesHook<Page, void>([
-    'page',
-  ]),
+  [PreRenderCliHook.beforeLoadPage]: new AsyncSeriesHook<
+    Page,
+    void
+  >(['page']),
+  [PreRenderCliHook.afterCapture]: new AsyncSeriesHook<
+    Page,
+    void
+  >(['page']),
 };
 
 export default hooks;

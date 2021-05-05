@@ -5,9 +5,10 @@
   "main": "./dist/index.js",
   "types": "./index.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
-  "author": "",
+  "author": "SHISME",
   "devDependencies": {
     "prerender-cli": "^1.0.0",
     "typescript": "^4.1.5"
@@ -15,5 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "http-proxy-middleware": "^1.3.1"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
