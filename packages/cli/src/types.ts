@@ -39,6 +39,8 @@ export interface IPreRenderConfig {
     propertyName: string;
     value:any;
   };
+  // https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts
+  deviceName?: string;
   plugins?: PreRenderCliPlugin<any>[];
 }
 

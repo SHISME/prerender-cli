@@ -1,6 +1,10 @@
 /** @format */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, {
+  Browser,
+  Page,
+  devicesMap,
+} from 'puppeteer';
 import path from 'path';
 import { IRoute, PreRenderCliHook } from './types';
 import {
@@ -66,6 +70,13 @@ async function injectProperty(page: Page): Promise<void> {
   }
 }
 
+async function emulate(page: Page): Promise<void> {
+  const { deviceName } = preRenderConfig;
+  if (deviceName && devicesMap[deviceName]) {
+    await page.emulate(devicesMap[deviceName]);
+  }
+}
+
 async function preRenderPage({
   browser,
   route,
@@ -74,6 +85,7 @@ async function preRenderPage({
   route: IRoute;
 }): Promise<string> {
   const page = await browser.newPage();
+  await emulate(page);
   const url = `${staticServerOrigin}${route.path}`;
   await page.setRequestInterception(true);
   page.on('request', req => {

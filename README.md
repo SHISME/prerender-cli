@@ -8,7 +8,7 @@
 
 ### Step1
 
-> npm install prerender-cli --save-dev
+> npm install prerender-cli -g
 
 ### Step2
 
@@ -115,6 +115,9 @@ export interface IPreRenderConfig {
     propertyName: string;
     value:any;
   };
+  // 需要模拟什么设备打开页面
+  // https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts
+  deviceName?: string;
   plugins?: PreRenderCliPlugin[];
 }
 
