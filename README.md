@@ -207,7 +207,7 @@ module.exports = {
 };
 ```
 
-### 自定义插件
+## 自定义插件
 
 ```typescript
 export interface ICompiler {
@@ -220,9 +220,9 @@ export abstract class PreRenderCliPlugin<T> {
   public abstract apply(compiler: ICompiler): void;
 }
 ```
-#### hooks
+### hooks
 
-##### beforeStartStaticServer
+#### beforeStartStaticServer
 
 启动静态服务前触发
 
@@ -237,12 +237,10 @@ compiler.hooks.beforeStartStaticServer.tap('Plugin Name', (app: Express) => {})
 compiler.hooks.beforeLoadPage.tapAsync('Plugin Name', async (page: Page) => {});
 ```
 
-##### afterCapture
+#### afterCapture
 
 预渲染捕获完成后触发
 
 ```typescript
 compiler.hooks.afterCapture.tapAsync('Plugin Name', async (page: Page) => {});
 ```
-
-
