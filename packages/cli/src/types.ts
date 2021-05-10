@@ -30,7 +30,7 @@ export abstract class PreRenderCliPlugin<T> {
 
 export interface IPreRenderConfig {
   routes: IRoute[];
-  cdnMappings?:{
+  cdnMaps?:{
     regExp: RegExp;
     targetPath: string;
   }[];

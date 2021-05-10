@@ -25,16 +25,19 @@ async function captureAfter(
   page: Page,
   route: IRoute,
 ): Promise<void> {
+  const promises = [];
   if (route.captureAfterElementExists) {
     if (
       typeof route.captureAfterElementExists === 'string'
     ) {
-      await page.waitForSelector(
-        route.captureAfterElementExists,
+      promises.push(
+        page.waitForSelector(
+          route.captureAfterElementExists,
+        ),
       );
     } else {
-      await Promise.all(
-        route.captureAfterElementExists.map(selector =>
+      promises.push(
+        ...route.captureAfterElementExists.map(selector =>
           page.waitForSelector(selector),
         ),
       );
@@ -42,22 +45,25 @@ async function captureAfter(
   }
 
   if (route.captureAfterDocumentEvent) {
-    await page.evaluate(captureAfterDocumentEvent => {
-      return new Promise(resolve => {
-        // @ts-ignore
-        document.addEventListener(
-          captureAfterDocumentEvent,
-          () => {
-            resolve(undefined);
-          },
-        );
-      });
-    }, route.captureAfterDocumentEvent);
+    promises.push(
+      page.evaluate(captureAfterDocumentEvent => {
+        return new Promise(resolve => {
+          // @ts-ignore
+          document.addEventListener(
+            captureAfterDocumentEvent,
+            () => {
+              resolve(undefined);
+            },
+          );
+        });
+      }, route.captureAfterDocumentEvent),
+    );
   }
 
   if (route.captureAfterTime) {
-    await delay(route.captureAfterTime);
+    promises.push(delay(route.captureAfterTime));
   }
+  await Promise.all(promises);
 }
 
 async function injectProperty(page: Page): Promise<void> {
@@ -90,11 +96,11 @@ async function preRenderPage({
   await page.setRequestInterception(true);
   page.on('request', req => {
     const url = req.url();
-    if (!preRenderConfig.cdnMappings) {
+    if (!preRenderConfig.cdnMaps) {
       req.continue();
       return;
     }
-    const cdnMap = preRenderConfig.cdnMappings.find(
+    const cdnMap = preRenderConfig.cdnMaps.find(
       ({ regExp }) => regExp.test(url),
     );
     if (!cdnMap) {

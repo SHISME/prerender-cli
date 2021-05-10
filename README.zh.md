@@ -1,12 +1,10 @@
 ## Prerender-cli
 
-[中文文档](./README.zh.md)
+一个帮助你构建预渲染页面的工具，你可以利用此工具来为你的页面生成骨架屏。
 
-A cli tool can help you build PreRender page.You can also use it to build skeleton for your web app.
+## 用法
 
-## Usage
-
-If you want to generate skeleton, you can do like this.
+按照下面的步骤来帮助你生成骨架屏。
 
 ### Step1
 
@@ -14,7 +12,7 @@ If you want to generate skeleton, you can do like this.
 
 ### Step2
 
-In your project root, create `prerender.config.js`.
+在你的项目根路径下，创建一份名为`prerender.config.js`的配置。
 
 ```javascript
 // prerender.config.js
@@ -22,16 +20,16 @@ const path = require('path');
 
 module.exports = {
   server: {
-    // the path to your build result
+    // 打包后文件的路径
     staticDir: path.resolve(__dirname, './testDist')
   },
   routes: [
     {
-      // the route to render
+      // 需要预渲染的页面路径
       path: '/page1/index.html',
     },
   ],
-  // If your page have cdn path, you can use to mapping to local path
+  // 产物中需要做cdn映射的地址
   cdnMaps: [
     {
       regExp: /other.domain.com/g,
@@ -42,8 +40,7 @@ module.exports = {
       targetPath: '/page1',
     },
   ],
-  // it will inject it to window,before render the preRender page.
-  // this config will do like this window['isPreRender'] = true
+  // 构建时注入到windows上的配置
   injectConfig: {
     propertyName: 'isPreRender',
     value: true,
@@ -53,44 +50,47 @@ module.exports = {
 
 ### Step3
 
+执行命令
+
 > build-prerender 
 
 or
 
 > build-prerender -c yourConfig.js
 
-## Interface
+## 参数说明
 
 ```typescript
 
 export interface IServerConfig {
-  port?: number; // the static server port,default 8888
-  staticDir: string; // the path to your build result
+  port?: number; // 静态服务器端口号，默认为8888
+  staticDir: string; // 编译后文件的根路径
 }
 
 export interface IRoute {
-  // the route of render page
+  // 页面的路径
   path: string;
 
-  // the path of the render html will be output to.
-  // default to the staticPath
+  // 预渲染html输出的路径，不传则覆盖原来的html
   outputPath?: string;
   
-  // wait to render unit the element exit using by `document.querySelector`
+  // 等待指定元素出现
+  // document.querySelector
   captureAfterElementExists?: string | string[];
   
-  // wait to render unit the event is dispatched on the document.
-  // with document.dispatchEvent(new Event('yourEventName'))
+  // 等待指定事件捕获
+  // 你需要在代码里手动去触发这个事件 document.dispatchEvent(new Event('yourEventName'))
   captureAfterDocumentEvent?: string;
   
-  // Wait to render until a certain amount of time has passed.
+  // 等待指定时间
   captureAfterTime?: number;
 }
 
 export interface IPreRenderConfig {
   routes: IRoute[];
 
-  // For example: proxy //other.domain.com/js/chunk-vendors.f8844798.js to /page1/js/chunk-vendors.f8844798.js
+  // cdn地址的映射
+  // 比方说把 //other.domain.com/js/chunk-vendors.f8844798.js 映射到 /page1/js/chunk-vendors.f8844798.js
   /**
   * {
   *   regExp: /other.domain.com/g,
@@ -103,9 +103,9 @@ export interface IPreRenderConfig {
   }[];
   server: IServerConfig;
   
-  // it will inject to window
+  // 这个配置会往window上注入
   /**
-   * window.isPreRender = true; 
+   * 在预渲染时候会往window上注入变量，window.isPreRender = true; 
    *{
    *  propertyName: 'isPreRender',
    *  value: true,
@@ -115,7 +115,7 @@ export interface IPreRenderConfig {
     propertyName: string;
     value:any;
   };
-  // emulate device
+  // 需要模拟什么设备打开页面
   // https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts
   deviceName?: string;
   plugins?: PreRenderCliPlugin[];
@@ -123,20 +123,17 @@ export interface IPreRenderConfig {
 
 ```
 
-## What is perRender page？
+## 什么是预渲染？
 
-It like SSR(Server Side Rendering).But if you project want to use SSR, there is some reason why that is not a great idea.
+就是提前生成好静态的 HTML，用户访问的时候直接就能将页面呈现出来。这点有点类似于 SSR，但是 SSR 需要维护一个 node 或者 php 的 SSR 服务器来生成页面，通常对于我们的项目来说将项目改造成 SSR 也需要不小的开发量，并且需要前端去维护 SSR 的服务器，这点带来的收益和付出的成本往往不成正比。
 
-- It is difficult for most of project to rebuild by ssr.
-- You need to maintain a SSR services.
+而预渲染，则是通过 puppeteer 控制无头浏览器打开页面，然后将浏览器生成好的 html 注入到入口 html 中，当用户访问入口 html 的时候，看到的就是我们预渲染生成的页面了。
 
-prerender-cli will use puppeteer to load page and build prerender page html. It will inject prerender page html to the entry html.
-
-## prerender-cli plugin
+## prerender-cli 插件
 
 ### prerender-cli-http-proxy
 
-It will proxy the api which in the page.
+这个插件能够帮助你代理转发你的接口
 
 ```javascript
 // prerender.config.js
@@ -164,7 +161,7 @@ module.exports = {
 
 ### prerender-cli-mock
 
-it dependence on [express-mock-api-middleware](https://github.com/TechStark/express-mock-api-middleware)
+此插件依赖了[express-mock-api-middleware](https://github.com/TechStark/express-mock-api-middleware)
 
 ```javascript
 // /mock/userInfo.js
@@ -210,7 +207,7 @@ module.exports = {
 };
 ```
 
-## Custom plugin
+## 自定义插件
 
 ```typescript
 export interface ICompiler {
@@ -227,16 +224,22 @@ export abstract class PreRenderCliPlugin<T> {
 
 #### beforeStartStaticServer
 
+启动静态服务前触发
+
 ```typescript
 compiler.hooks.beforeStartStaticServer.tap('Plugin Name', (app: Express) => {})
 ```
 #### beforeLoadPage
+
+加载页面前执行
 
 ```typescript
 compiler.hooks.beforeLoadPage.tapAsync('Plugin Name', async (page: Page) => {});
 ```
 
 #### afterCapture
+
+预渲染捕获完成后触发
 
 ```typescript
 compiler.hooks.afterCapture.tapAsync('Plugin Name', async (page: Page) => {});

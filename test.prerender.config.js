@@ -16,7 +16,7 @@ module.exports = {
       ),
     },
   ],
-  cdnMappings: [
+  cdnMaps: [
     {
       regExp: /other.domain.com/g,
       targetPath: '/page1',
